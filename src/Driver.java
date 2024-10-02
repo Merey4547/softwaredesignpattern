@@ -38,7 +38,6 @@ public class Driver implements Prototype<Driver> {
         return new Driver(this.name, this.carModel, this.carMake, this.age, this.experience);
     }
 
-
     public String getName() {
         return name;
     }
@@ -79,3 +78,4 @@ public class Driver implements Prototype<Driver> {
         this.experience = experience;
     }
 }
+
