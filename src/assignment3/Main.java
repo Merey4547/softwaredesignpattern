@@ -1,94 +1,89 @@
 package assignment3;
 
-// Command Interface
-interface Command {
-    void execute();
+abstract class Handler {
+    protected Handler nextHandler;
+
+    public void setNext(Handler handler) {
+        this.nextHandler = handler;
+    }
+
+    public abstract boolean handle(Request request);
 }
 
-// Receiver: Taxi Order
-class TaxiOrder {
-    private String orderId;
-    private String destination;
-
-    public TaxiOrder(String orderId) {
-        this.orderId = orderId;
-    }
-
-    public void create() {
-        System.out.println("Order " + orderId + " created.");
-    }
-
-    public void cancel() {
-        System.out.println("Order " + orderId + " canceled.");
-    }
-
-    public void changeDestination(String newDestination) {
-        this.destination = newDestination;
-        System.out.println("Order " + orderId + " destination changed to " + destination);
-    }
-}
-
-// Concrete Commands
-class CreateOrderCommand implements Command {
-    private TaxiOrder order;
-
-    public CreateOrderCommand(TaxiOrder order) {
-        this.order = order;
-    }
-
+// доступность машины
+class CarAvailabilityHandler extends Handler {
     @Override
-    public void execute() {
-        order.create();
+    public boolean handle(Request request) {
+        if (request.isCarAvailable()) {
+            System.out.println("Car is available.");
+            if (nextHandler != null) return nextHandler.handle(request);
+            return true;
+        }
+        System.out.println("No cars available.");
+        return false;
     }
 }
 
-class CancelOrderCommand implements Command {
-    private TaxiOrder order;
-
-    public CancelOrderCommand(TaxiOrder order) {
-        this.order = order;
-    }
-
+// баланс
+class BalanceHandler extends Handler {
     @Override
-    public void execute() {
-        order.cancel();
+    public boolean handle(Request request) {
+        if (request.getClientBalance() >= request.getRequiredAmount()) {
+            System.out.println("Client balance verified.");
+            if (nextHandler != null) return nextHandler.handle(request);
+            return true;
+        }
+        System.out.println("Insufficient balance.");
+        return false;
     }
 }
 
-class ChangeDestinationCommand implements Command {
-    private TaxiOrder order;
-    private String newDestination;
-
-    public ChangeDestinationCommand(TaxiOrder order, String newDestination) {
-        this.order = order;
-        this.newDestination = newDestination;
-    }
-
+// можно ли доехать до указанного места
+class LocationHandler extends Handler {
     @Override
-    public void execute() {
-        order.changeDestination(newDestination);
+    public boolean handle(Request request) {
+        if (request.isLocationReachable()) {
+            System.out.println("Location is reachable.");
+            return true;
+        }
+        System.out.println("Location not reachable.");
+        return false;
     }
 }
 
-// Invoker class to execute commands
-class Dispatcher {
-    public void sendCommand(Command command) {
-        command.execute();
+// Request class to hold data
+class Request {
+    private boolean carAvailable;
+    private double clientBalance;
+    private double requiredAmount;
+    private boolean locationReachable;
+
+    public Request(boolean carAvailable, double clientBalance, double requiredAmount, boolean locationReachable) {
+        this.carAvailable = carAvailable;
+        this.clientBalance = clientBalance;
+        this.requiredAmount = requiredAmount;
+        this.locationReachable = locationReachable;
     }
+
+    public boolean isCarAvailable() { return carAvailable; }
+    public double getClientBalance() { return clientBalance; }
+    public double getRequiredAmount() { return requiredAmount; }
+    public boolean isLocationReachable() { return locationReachable; }
 }
 
-// Test the commands
+// Test the chain
 public class Main {
     public static void main(String[] args) {
-        TaxiOrder order = new TaxiOrder("123");
+        Request request = new Request(true, 500, 100, true);
 
-        Command createOrder = new CreateOrderCommand(order);
-        Command cancelOrder = new CancelOrderCommand(order);
-        Command changeDestination = new ChangeDestinationCommand(order, "New Address");
+        Handler carHandler = new CarAvailabilityHandler();
+        Handler balanceHandler = new BalanceHandler();
+        Handler locationHandler = new LocationHandler();
 
-        Dispatcher dispatcher = new Dispatcher();
-        dispatcher.sendCommand(createOrder);
-        dispatcher.sendCommand(changeDestination);
-        dispatcher.sendCommand(cancelOrder);
+        carHandler.setNext(balanceHandler);
+        balanceHandler.setNext(locationHandler);
+
+        boolean result = carHandler.handle(request);
+        System.out.println("Request processing result: " + result);
     }
 }
