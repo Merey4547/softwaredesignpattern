@@ -16,6 +16,7 @@ class Order {
                 clients.remove(client);
         }
 
+        // Устанавливаем новый статус и уведомляем подписчиков
         public void setStatus(String status) {
                 this.status = status;
                 notifyClients();
@@ -40,6 +41,7 @@ class Client {
                 this.name = name;
         }
 
+        // Метод, который вызывается при изменении статуса заказа
         public void update(Order order) {
                 System.out.println("Notification to " + name + ": Order status changed to " + order.getStatus());
         }
