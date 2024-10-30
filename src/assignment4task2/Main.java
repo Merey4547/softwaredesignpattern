@@ -8,11 +8,12 @@ interface OrderState {
 
 class CreatedState implements OrderState {
     public void next(OrderContext context) {
-        context.setState(new ConfirmedState());
+        context.setState(new ConfirmedState()); // Переход в состояние "Подтвержден"
+
     }
 
     public void prev(OrderContext context) {
-        System.out.println("Order is in the initial state.");
+        System.out.println("Order is in the initial state."); // Нельзя вернуться назад
     }
 
     public void printStatus() {
@@ -26,7 +27,7 @@ class ConfirmedState implements OrderState {
     }
 
     public void prev(OrderContext context) {
-        context.setState(new CreatedState());
+        context.setState(new CreatedState()); // Возврат в состояние "Создан"
     }
 
     public void printStatus() {
@@ -62,6 +63,7 @@ class FinishedState implements OrderState {
     }
 }
 
+//Контекст хранит текущее состояние и делегирует операции объекту состояния.
 class OrderContext {
     private OrderState state;
 

@@ -1,18 +1,18 @@
 package assignment4task3;
 
 interface PricingStrategy {
-    double calculatePrice(double value);
+    double calculatePrice(double value); // value: километры или минуты
 }
 
 class DistanceStrategy implements PricingStrategy {
     public double calculatePrice(double distance) {
-        return distance * 10; // Price per km
+        return distance * 10;
     }
 }
 
 class TimeStrategy implements PricingStrategy {
     public double calculatePrice(double time) {
-        return time * 2; // Price per minute
+        return time * 2;
     }
 }
 
